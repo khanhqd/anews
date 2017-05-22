@@ -84,7 +84,6 @@ export default class News extends Component {
               description: array3[i]
             })
           }
-          console.log(data)
           this.setState({
             data: data,
             isLoadMore: false,

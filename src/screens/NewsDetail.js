@@ -14,7 +14,7 @@ import {
   Platform
 } from 'react-native';
 
-var {height, width} = Dimensions.get('window');
+var { height, width } = Dimensions.get('window');
 
 import { Navigation } from 'react-native-navigation';
 import { RunsItem, Button1 } from '../common';
@@ -25,25 +25,25 @@ var Toast = require('react-native-toast');
 
 export default class NewsDetail extends Component {
   static
-    navigatorStyle = {
-      navBarHidden: false,
-      navBarBackgroundColor: '#889C9B',
-      navBarTextColor: 'white',
-      navBarButtonColor: 'white',
-      navBarHideOnScroll: true
-    };
+  navigatorStyle = {
+    navBarHidden: false,
+    navBarBackgroundColor: '#889C9B',
+    navBarTextColor: 'white',
+    navBarButtonColor: 'white',
+    navBarHideOnScroll: true
+  };
   static
-    navigatorButtons = {
-      rightButtons: [
-        {
-          title: 'Menu', // for a textual button, provide the button title (label)
-          id: 'menu', // id for this button, given in onNavigatorEvent(event) to help understand which button was clicked
-          buttonColor: 'white', // Optional, iOS only. Set color for the button (can also be used in setButtons function to set different button style programatically)
-          buttonFontSize: 14, // Set font size for the button (can also be used in setButtons function to set different button style programatically)
-          buttonFontWeight: '600', // Set font weight for the button (can also be used in setButtons function to set different button style programatically)
-        }
-      ],
-    };
+  navigatorButtons = {
+    rightButtons: [
+      {
+        title: 'Menu', // for a textual button, provide the button title (label)
+        id: 'menu', // id for this button, given in onNavigatorEvent(event) to help understand which button was clicked
+        buttonColor: 'white', // Optional, iOS only. Set color for the button (can also be used in setButtons function to set different button style programatically)
+        buttonFontSize: 14, // Set font size for the button (can also be used in setButtons function to set different button style programatically)
+        buttonFontWeight: '600', // Set font weight for the button (can also be used in setButtons function to set different button style programatically)
+      }
+    ],
+  };
   constructor(props) {
     super(props);
     // if you want to listen on navigator events, set this up
@@ -65,24 +65,27 @@ export default class NewsDetail extends Component {
   componentDidMount() {
     let urlPost = this.props.row.url;
     let list = this.state.bookMark;
-    list.some(function(el) {
+    list.some(function (el) {
       if (el.url == urlPost) {
-        this.setState({isSaved: true})
+        this.setState({ isSaved: true })
       }
     })
   }
   _set = async (key, value) => {
-    try {await AsyncStorage.setItem(key, value);}
-    catch (error) {console.log(error.message)}
+    try { await AsyncStorage.setItem(key, value); }
+    catch (error) { console.log(error.message) }
   };
   _get = async (key) => {
-    try {var value = await AsyncStorage.getItem(key);
-      if (value !== null){
+    try {
+      var value = await AsyncStorage.getItem(key);
+      if (value !== null) {
         switch (key) {
           case 'bookMark':
             this.setState({ bookMark: JSON.parse(value) });
             break;
-        }}}catch (error) {alert(error)}
+        }
+      }
+    } catch (error) { alert(error) }
   };
   returnHtml = () => {
     console.log('return New')
@@ -143,12 +146,13 @@ export default class NewsDetail extends Component {
     return htmlPlus
   }
   fetchContent() {
-    fetch(this.props.row.url)
+    let url = this.props.row.url
       .then((response) => response.text())
       .then((responseData) => {
         $ = cheerio.load(responseData)
         this.setState({ baseHTML: $('#left_calculator').html() }, () => {
-          this.setState({ html : `
+          this.setState({
+            html: `
               <body>
               ${this.state.baseHTML + this.returnHtml()}
               </body>
@@ -177,17 +181,17 @@ export default class NewsDetail extends Component {
   //       `})
   // }
   loading() {
-    if(this.state.html != '') {
+    if (this.state.html != '') {
       return (
-          <WebView
-          style={{width: width}}
+        <WebView
+          style={{ width: width }}
           javaScriptEnabled={true}
-          onMessage={(event)=>{this.setState({ textSelected: event.nativeEvent.data})}}
-          source={{html: this.state.html}}/>
+          onMessage={(event) => { this.setState({ textSelected: event.nativeEvent.data }) }}
+          source={{ html: this.state.html }} />
       )
     } else {
       return (
-        <Text style={{textAlign: 'center', alignSelf: 'center'}}>Loading...
+        <Text style={{ textAlign: 'center', alignSelf: 'center' }}>Loading...
         </Text>
       )
     }
@@ -198,25 +202,25 @@ export default class NewsDetail extends Component {
       url: this.props.row.url,
       title: 'From News App'
     }, {
-      dialogTitle: 'From News App',
-      // excludedActivityTypes: [
-      //   'com.apple.UIKit.activity.PostToTwitter'
-      // ],
-      tintColor: 'green'
-    })
-    .then(this._showResult)
-    .catch((error) => this.setState({result: 'error: ' + error.message}));
+        dialogTitle: 'From News App',
+        // excludedActivityTypes: [
+        //   'com.apple.UIKit.activity.PostToTwitter'
+        // ],
+        tintColor: 'green'
+      })
+      .then(this._showResult)
+      .catch((error) => this.setState({ result: 'error: ' + error.message }));
   }
   _showResult(result) {
     if (result.action === Share.sharedAction) {
       if (result.activityType) {
-        this.setState({result: 'shared with an activityType: ' + result.activityType});
+        this.setState({ result: 'shared with an activityType: ' + result.activityType });
       } else {
-        this.setState({result: 'shared'});
+        this.setState({ result: 'shared' });
       }
       alert(this.state.result)
     } else if (result.action === Share.dismissedAction) {
-      this.setState({result: 'dismissed'});
+      this.setState({ result: 'dismissed' });
       alert(this.state.result)
     }
   }
@@ -233,126 +237,128 @@ export default class NewsDetail extends Component {
     if (!this.state.loading) {
       this.setState({ loading: true })
       let list = this.state.bookMark;
-        if(!this.state.isSaved) {
-          var favor = {
-            title: this.props.row.title,
-            url: this.props.row.url,
-            thumb: this.props.row.thumb,
-            html: this.state.html
-          }
-          list.push(favor)
-          this._set('bookMark', JSON.stringify(list))
-          this.setState({ isSaved: true, loading: false })
+      if (!this.state.isSaved) {
+        var favor = {
+          title: this.props.row.title,
+          url: this.props.row.url,
+          thumb: this.props.row.thumb,
+          html: this.state.html
         }
-        Toast.show('Đã lưu');
+        list.push(favor)
+        this._set('bookMark', JSON.stringify(list))
+        this.setState({ isSaved: true, loading: false })
+      }
+      Toast.show('Đã lưu');
     }
   }
   render() {
     return (
       <View style={{ flex: 1, alignItems: 'center' }}>
-          {this.loading()}
-          {(this.state.textSelected != '') &&
+        {this.loading()}
+        {(this.state.textSelected != '') &&
           <Animatable.View animation="slideInUp" duration={300} style={styles.shareModal}>
-              <TouchableHighlight
+            <TouchableHighlight
               underlayColor="white"
-              onPress={()=>{
+              onPress={() => {
                 Share.share({
                   message: this.state.textSelected,
                   url: this.props.row.url,
                   title: 'From News App'
                 }, {
-                  dialogTitle: 'From News App',
-                  // excludedActivityTypes: [
-                  //   'com.apple.UIKit.activity.PostToTwitter'
-                  // ],
-                  tintColor: 'green'
-                })
-                .then(this._showResult)
-                .catch((error) => this.setState({result: 'error: ' + error.message}));
+                    dialogTitle: 'From News App',
+                    // excludedActivityTypes: [
+                    //   'com.apple.UIKit.activity.PostToTwitter'
+                    // ],
+                    tintColor: 'green'
+                  })
+                  .then(this._showResult)
+                  .catch((error) => this.setState({ result: 'error: ' + error.message }));
               }}
               style={styles.modalItem}>
-                  <View>
-                      <Text style={styles.modalText}>Share link kèm trích dẫn
+              <View>
+                <Text style={styles.modalText}>Share link kèm trích dẫn
                       </Text>
-                  </View>
-              </TouchableHighlight>
+              </View>
+            </TouchableHighlight>
           </Animatable.View>
-          }
-          {this.state.openMenu &&
-            <Animatable.View animation="slideInDown" duration={300} style={styles.menuModal}>
-              <TouchableHighlight
+        }
+        {this.state.openMenu &&
+          <Animatable.View animation="slideInDown" duration={300} style={styles.menuModal}>
+            <TouchableHighlight
               underlayColor="white"
-              onPress={()=>this.setState({fontSize: this.state.fontSize+1}, () => {
+              onPress={() => this.setState({ fontSize: this.state.fontSize + 1 }, () => {
                 console.log(this.state.html)
-                this.setState({ html:
-                    `<body>
+                this.setState({
+                  html:
+                  `<body>
                       ${this.state.baseHTML + this.returnHtml()}
                       </body>
                     `})
               })}
               style={styles.modalItem}>
-                  <View>
-                      <Text style={styles.modalText}>A+
+              <View>
+                <Text style={styles.modalText}>A+
                       </Text>
-                  </View>
-              </TouchableHighlight>
-              <TouchableHighlight
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight
               underlayColor="white"
-              onPress={()=>this.setState({fontSize: this.state.fontSize-1}, () => {
+              onPress={() => this.setState({ fontSize: this.state.fontSize - 1 }, () => {
                 console.log(this.state.fontSize)
-                this.setState({  html:
-                    `<body>
+                this.setState({
+                  html:
+                  `<body>
                       ${this.state.baseHTML + this.returnHtml()}
                       </body>
                     `})
               })}
               style={styles.modalItem}>
-                  <View>
-                      <Text style={styles.modalText}>A-
+              <View>
+                <Text style={styles.modalText}>A-
                       </Text>
-                  </View>
-              </TouchableHighlight>
-              <TouchableHighlight
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight
               underlayColor="white"
-              onPress={()=>this._share()}
+              onPress={() => this._share()}
               style={styles.modalItem}>
-                  <View>
-                      <Text style={styles.modalText}>Share
+              <View>
+                <Text style={styles.modalText}>Share
                       </Text>
-                  </View>
-              </TouchableHighlight>
-              <TouchableHighlight
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight
               underlayColor="white"
-              onPress={()=>this._openLink()}
+              onPress={() => this._openLink()}
               style={styles.modalItem}>
-                  <View>
-                      <Text style={styles.modalText}>Mở trình duyệt
+              <View>
+                <Text style={styles.modalText}>Mở trình duyệt
                       </Text>
-                  </View>
-              </TouchableHighlight>
-              <TouchableHighlight
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight
               underlayColor="white"
-              onPress={()=>this._saveBookmark()}
+              onPress={() => this._saveBookmark()}
               style={styles.modalItem}>
-                  <View>
-                      <Text style={styles.modalText}>Lưu
+              <View>
+                <Text style={styles.modalText}>Lưu
                       </Text>
-                  </View>
-              </TouchableHighlight>
-              <TouchableHighlight
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight
               underlayColor="white"
-              onPress={()=>{
+              onPress={() => {
                 Clipboard.setString(this.props.row.url);
                 Toast.show('Đã sao chép link');
               }}
               style={styles.modalItem}>
-                  <View>
-                      <Text style={styles.modalText}>Sao chép
+              <View>
+                <Text style={styles.modalText}>Sao chép
                       </Text>
-                  </View>
-              </TouchableHighlight>
-            </Animatable.View>
-          }
+              </View>
+            </TouchableHighlight>
+          </Animatable.View>
+        }
       </View >
     );
   }
