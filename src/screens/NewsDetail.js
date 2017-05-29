@@ -98,7 +98,7 @@ export default class NewsDetail extends Component {
       * {
         -webkit-touch-callout: none !important;
       }
-      h3, p, .block_timer_share{
+      h3, p, .block_timer_share,.item_slide_show{
         margin-left: ${this.state.paddingLeft}px;
         line-height: 1.3em;
         margin-right: 10px;
@@ -112,8 +112,12 @@ export default class NewsDetail extends Component {
         overflow-x:hidden;
         font-family: 'Nunito', sans-serif;
         margin-left: -1px;
-        margin-right: 5px;
+        margin-right: 3px;
         background-color: ${this.state.postBackground}
+      }
+      img{
+        height:200px;
+        width:${width}px;
       }
     </style>
     <script>
@@ -147,17 +151,55 @@ export default class NewsDetail extends Component {
   }
   fetchContent() {
     let url = this.props.row.url
+    fetch(this.props.row.url)
       .then((response) => response.text())
       .then((responseData) => {
         $ = cheerio.load(responseData)
-        this.setState({ baseHTML: $('#left_calculator').html() }, () => {
-          this.setState({
-            html: `
+        // phân biệt các thể loại url
+        if (url.includes('http://vnexpress.net/projects/') == true) {
+          this.setState({ baseHTML: $('.wrapper').html() }, () => {
+            this.setState({
+              html: `
               <body>
               ${this.state.baseHTML + this.returnHtml()}
               </body>
             `})
-        })
+          })
+        }
+        else {
+          if ($('#container_tab_live').html() !== null) {
+            this.setState({ baseHTML: $('#container_tab_live').html() }, () => {
+              this.setState({
+                html: `
+              <body>
+              ${this.state.baseHTML + this.returnHtml()}
+              </body>
+            `
+              })
+            })
+          }
+          if ($('.block_content_slide_showdetail').html() !== null) {
+            this.setState({ baseHTML: $('.block_content_slide_showdetail').html() }, () => {
+              this.setState({
+                html: `
+              <body>
+              ${this.state.baseHTML + this.returnHtml()}
+              </body>
+            `
+              })
+            })
+          }
+          else {
+            this.setState({ baseHTML: $('#left_calculator').html() }, () => {
+              this.setState({
+                html: `
+              <body>
+              ${this.state.baseHTML + this.returnHtml()}
+              </body>
+            `})
+            })
+          }
+        }
       })
   }
   onNavigatorEvent(event) {

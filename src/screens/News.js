@@ -43,6 +43,7 @@ export default class News extends Component {
     this.state = {
       page: 1,
       data: [],
+      array:[],
       refreshing: false,
       isLoadMore: false
     }
@@ -52,46 +53,35 @@ export default class News extends Component {
   componentDidMount() {
     this.fetchData()
   }
-  fetchData() {
-    let data = this.state.data
-    let array1 = []
-    let array2 = []
-    let array3 = []
-    fetch(`http://thethao.vnexpress.net/page/${this.state.page}.html`)
-      .then((response) => response.text())
-      .then((responseData) => {
-          $ = cheerio.load(responseData)
-          $('.block_mid_new >ul >li> div>div>a>img').each(function () {
-            let src = $(this).attr('src')
-            array1.push(src)
-          })
-          $('.block_mid_new >ul >li>h3>a.txt_link').each(function () {
-            array2.push({
-              href: $(this).attr('href'),
-              title: $(this).attr('title')
+    fetchData() {
+        let data = this.state.data
+        fetch(`http://vnexpress.net/rss/the-thao.rss`)
+            .then((response) => response.text())
+            .then((responseData) => {
+                $ = cheerio.load(responseData, {
+                    xmlMode: true,
+                    decodeEntities: true
+                })
+                $('channel>item').each(function(){
+                CDATA =$(this).find('description').text()
+                let vitribatdau = CDATA.search('src=')
+                let vitriketthuc = CDATA.search(' ></a>')
+                let vitribatdauDes = CDATA.search('</br>')
+                let vitriketthucDes = CDATA.search(']]>')
+                    data.push({
+                        title:$(this).find('title').text(),
+                        thumb : CDATA.slice(vitribatdau +5 , vitriketthuc-1),
+                        des: CDATA.slice(vitribatdauDes+5 , vitriketthucDes),
+                        url:$(this).find('link').text(),
+                        date: $(this).find('pubDate').text()
+                    })
+                })
+                this.setState({
+                  data:data,
+                  refreshing:false
+                })
             })
-          })
-          $('.block_mid_new >ul >li> div>div.news_lead').each(function () {
-            let description = $(this).text()
-            var newString = description.replace(/\s+ /g, "")
-            array3.push(newString)
-          })
-          for (let i = 0; i < array1.length; i++) {
-            data.push({
-              thumb: array1[i],
-              url: array2[i].href,
-              title: array2[i].title,
-              description: array3[i]
-            })
-          }
-          this.setState({
-            data: data,
-            isLoadMore: false,
-            refreshing: false
-          })
-      })
-
-  }
+    }
 
   onNavigatorEvent(event) {
     if (event.type == 'NavBarButtonPress') {
